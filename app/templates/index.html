@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Second Brain</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="layout">
+
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1 class="logo">Second Brain</h1>
+      <p class="tagline">Your personal knowledge base</p>
+    </div>
+
+    <!-- Sidebar tabs -->
+    <div class="sidebar-tabs">
+      <button class="stab active" data-tab="docs">Docs</button>
+      <button class="stab" data-tab="notes">Notes</button>
+      <button class="stab" data-tab="history">History</button>
+    </div>
+
+    <!-- DOCS TAB -->
+    <div class="stab-panel active" id="tab-docs">
+      <!-- Upload zone -->
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">+</div>
+        <p>Drop files or click to upload</p>
+        <p class="upload-hint">PDF, DOCX, PPTX, TXT, images, video/audio</p>
+        <input type="file" id="fileInput" multiple hidden>
+      </div>
+
+      <!-- URL ingestion -->
+      <div class="url-bar">
+        <input type="url" id="urlInput" placeholder="Paste a URL to ingest...">
+        <button id="urlBtn" class="btn-sm">Add</button>
+      </div>
+
+      <!-- Drive sync -->
+      <div class="drive-bar">
+        <button id="driveBtn" class="btn-sm btn-outline">Google Drive</button>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="filter-bar">
+        <select id="collectionFilter" title="Filter by collection">
+          <option value="all">All collections</option>
+        </select>
+        <select id="tagFilter" title="Filter by tag">
+          <option value="">All tags</option>
+        </select>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar" id="statsBar">
+        <span id="statDocs">0 docs</span>
+        <span id="statChunks">0 chunks</span>
+      </div>
+
+      <!-- Document list -->
+      <div class="doc-list-header">Knowledge Base</div>
+      <div class="doc-list" id="docList">
+        <div class="doc-empty">No documents yet</div>
+      </div>
+
+      <div class="folder-path" id="folderPath"></div>
+    </div>
+
+    <!-- NOTES TAB -->
+    <div class="stab-panel" id="tab-notes">
+      <div class="notes-toolbar">
+        <button id="newNoteBtn" class="btn-sm">+ New note</button>
+      </div>
+      <div class="notes-list" id="notesList">
+        <div class="doc-empty">No notes yet</div>
+      </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div class="stab-panel" id="tab-history">
+      <div class="history-toolbar">
+        <button id="newChatBtn" class="btn-sm">+ New chat</button>
+      </div>
+      <div class="sessions-list" id="sessionsList">
+        <div class="doc-empty">No saved chats</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main area -->
+  <main class="main-area">
+
+    <!-- Chat header with filter pills -->
+    <div class="chat-header">
+      <div class="chat-title" id="chatTitle">New conversation</div>
+      <div class="chat-filters">
+        <span class="filter-label">Scope:</span>
+        <select id="chatCollectionFilter" title="Limit answers to collection">
+          <option value="">All collections</option>
+        </select>
+        <select id="chatTagFilter" title="Limit answers to tag">
+          <option value="">All tags</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages" id="messages">
+      <div class="welcome">
+        <h2>Ask your second brain anything</h2>
+        <p>Upload documents, paste URLs, write notes — then ask questions about them.<br>
+           Use the sidebar to manage your knowledge base and browse past chats.</p>
+      </div>
+    </div>
+
+    <!-- Sources panel -->
+    <div class="sources-panel" id="sourcesPanel" style="display:none">
+      <div class="sources-header" id="sourcesToggle">Sources <span class="chevron">▼</span></div>
+      <div class="sources-body" id="sourcesBody"></div>
+    </div>
+
+    <!-- Input bar -->
+    <div class="input-bar">
+      <textarea id="userInput" placeholder="Ask anything about your documents..." rows="1"></textarea>
+      <button id="sendBtn" class="send-btn">Send</button>
+    </div>
+  </main>
+
+</div>
+
+<!-- Note editor modal -->
+<div class="modal-overlay" id="noteModal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <input type="text" id="noteTitle" placeholder="Note title..." class="note-title-input">
+      <button class="modal-close" id="closeNoteModal">×</button>
+    </div>
+    <textarea id="noteContent" class="note-content-input" placeholder="Write your note in markdown..."></textarea>
+    <div class="modal-footer">
+      <input type="text" id="noteTags" placeholder="Tags (comma-separated)">
+      <select id="noteCollection">
+        <option value="notes">notes</option>
+      </select>
+      <button id="saveNoteBtn" class="btn-primary">Save</button>
+      <button id="deleteNoteBtn" class="btn-danger" style="display:none">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Drive browser modal -->
+<div class="modal-overlay" id="driveModal" style="display:none">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <span class="modal-title">Google Drive</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="driveSearch" placeholder="Search files..." class="drive-search-input">
+        <button id="driveSearchBtn" class="btn-sm">Search</button>
+        <button class="modal-close" id="closeDriveModal">×</button>
+      </div>
+    </div>
+    <div class="drive-file-list" id="driveFileList">
+      <div class="doc-empty">Click Search to list Drive files</div>
+    </div>
+    <div class="modal-footer">
+      <input type="text" id="driveSyncTags" placeholder="Tags for synced files">
+      <select id="driveSyncCollection"><option value="default">default</option></select>
+      <button id="driveSyncBtn" class="btn-primary">Sync selected</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
